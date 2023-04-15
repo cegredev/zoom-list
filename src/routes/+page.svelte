@@ -31,3 +31,4 @@
 
 <p>{content}</p>
 <button on:click={processCSVFile}>Öffnen</button>
+<a href="/entry">Entry</a>
