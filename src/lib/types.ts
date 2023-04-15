@@ -8,7 +8,7 @@ export interface Client {
 }
 
 export interface ZoomEntry {
-	client: ID;
+	client?: ID;
 	start: DateTime;
 	duration: Duration;
 }

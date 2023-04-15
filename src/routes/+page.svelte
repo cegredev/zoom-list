@@ -22,7 +22,7 @@
 		const path = await openCSVFile();
 		if (!path) return;
 
-		content = await readCSVFile(path);
+		const entries = await readCSVFile(path);
 	}
 </script>
 
