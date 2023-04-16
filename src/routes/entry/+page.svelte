@@ -65,7 +65,7 @@
 	}
 
 	.bottom-bar {
-		@apply bg-base-200;
+		@apply bg-base-100;
 
 		flex: 0;
 		padding: 5px;
