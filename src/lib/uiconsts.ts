@@ -12,3 +12,5 @@ export const fullMonths = [
 	'November',
 	'Dezember'
 ];
+
+export const DATE_FORMAT_DETAILED = 'dd.MM.yyyy HH:mm:ss';

@@ -19,6 +19,7 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2.4", features = ["dialog-open", "fs-exists", "fs-read-file", "fs-write-file"] }
 rusqlite = { version = "0.29.0", features = ["bundled"] }
+chrono = "0.4.24"
 
 [features]
 # by default Tauri runs in production mode

@@ -2,8 +2,7 @@ import { readTextFile } from '@tauri-apps/api/fs';
 import type { ID, ZoomEntry } from './types';
 import { DateTime, Duration } from 'luxon';
 import { getClientMap } from './clients';
-
-const DATE_FORMAT = 'dd.MM.yyyy HH:mm:ss';
+import { DATE_FORMAT_DETAILED } from './uiconsts';
 
 export async function readCSVFile(path: string): Promise<ZoomEntry[] | null> {
 	let content: string;
@@ -32,7 +31,7 @@ export async function readCSVFile(path: string): Promise<ZoomEntry[] | null> {
 		entries.push({
 			client: clientMap.get(name.trim()),
 			duration: Duration.fromDurationLike({ minutes: parseInt(durationMinutesStr) }),
-			start: DateTime.fromFormat(start, DATE_FORMAT)
+			start: DateTime.fromFormat(start, DATE_FORMAT_DETAILED)
 		});
 	}
 	console.log(entries);

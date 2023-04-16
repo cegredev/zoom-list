@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Client {
-    id: i32,
-    name: String,
+    pub id: i32,
+    pub name: String,
 }
 
 pub fn get_clients(conn: Connection) -> Result<Vec<Client>> {

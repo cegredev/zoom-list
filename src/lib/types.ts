@@ -12,3 +12,17 @@ export interface ZoomEntry {
 	start: DateTime;
 	duration: Duration;
 }
+
+export interface FloatingRecord {
+	start: DateTime;
+	duration: Duration;
+}
+
+export interface Record extends FloatingRecord {
+	client: ID;
+}
+
+export interface CSVData {
+	records: Record[];
+	floatingRecords: Map<string, FloatingRecord[]>;
+}

@@ -9,6 +9,7 @@ mod records;
 
 use clients::Client;
 use db::{init_db, open_db_connection, DATABASE_FILE_NAME, DATABASE_FOLDER_NAME};
+use records::CSVData;
 use std::fs;
 
 fn main() {
@@ -34,7 +35,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             get_clients,
             insert_client,
-            delete_client
+            delete_client,
+            parse_csv
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -59,4 +61,11 @@ fn delete_client(app_handle: tauri::AppHandle, id: i32) {
     let conn = open_db_connection(app_handle).expect("couldnt connect to db");
 
     clients::delete_client(conn, id)
+}
+
+#[tauri::command]
+fn parse_csv(app_handle: tauri::AppHandle, path: String) -> CSVData {
+    let conn = open_db_connection(app_handle).expect("couldnt connect to db");
+
+    records::records_from_csv(conn, path).expect("could not parse")
 }
