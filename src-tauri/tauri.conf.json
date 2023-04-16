@@ -15,7 +15,8 @@
 			"fs": {
 				"exists": true,
 				"readFile": true,
-				"writeFile": true
+				"writeFile": true,
+				"scope": ["$APPDATA/databases/*"]
 			},
 			"dialog": {
 				"open": true
@@ -36,7 +37,8 @@
 				"icons/icon.icns",
 				"icons/icon.ico"
 			],
-			"identifier": "com.tauri.dev",
+			"identifier": "com.cedricgreiten.zoom-list",
+			"publisher": "Cedric Greiten",
 			"longDescription": "",
 			"macOS": {
 				"entitlements": null,

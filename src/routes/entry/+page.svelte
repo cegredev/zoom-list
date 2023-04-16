@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { DateTime } from 'luxon';
 	import { fullMonths } from '$lib/uiconsts';
+	import { invoke } from '@tauri-apps/api/tauri';
 
 	const DATE_DISPLAY_FORMAT = 'dd.MM.yyyy';
 
@@ -21,7 +22,7 @@
 				{#if Math.random() < 0.5}
 					<div>Noch keine Daten vorhanden</div>
 				{:else}
-					<div>Einträge: 59</div>
+					<div>Einträge: {90 + Math.floor(Math.random() * 20)}</div>
 					<button class="btn btn-sm btn-outline btn-secondary">Löschen</button>
 				{/if}
 			</div>
@@ -38,7 +39,12 @@
 
 		<div class="divider divider-horizontal" />
 
-		<button class="btn btn-primary">Hinzufügen</button>
+		<button
+			class="btn btn-primary"
+			on:click={async () => {
+				await invoke('init_db');
+			}}>Hinzufügen</button
+		>
 	</div>
 </div>
 
