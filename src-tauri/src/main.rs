@@ -36,8 +36,7 @@ fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_clients])
-        .invoke_handler(tauri::generate_handler![insert_client])
+        .invoke_handler(tauri::generate_handler![get_clients, insert_client])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
