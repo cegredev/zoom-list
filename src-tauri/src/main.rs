@@ -27,7 +27,7 @@ fn main() {
             path.push(DATABASE_FOLDER_NAME);
 
             if !path.exists() {
-                fs::create_dir(path.clone())?;
+                fs::create_dir_all(path.clone())?;
             }
 
             Ok(())
