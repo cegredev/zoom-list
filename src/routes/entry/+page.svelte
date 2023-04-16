@@ -22,7 +22,7 @@
 					<div>Noch keine Daten vorhanden</div>
 				{:else}
 					<div>Einträge: {90 + Math.floor(Math.random() * 20)}</div>
-					<button class="btn btn-sm btn-outline btn-secondary">Löschen</button>
+					<button class="btn btn-sm btn-outline btn-error">Löschen</button>
 				{/if}
 			</div>
 		{/each}
@@ -61,7 +61,7 @@
 		align-items: center;
 
 		padding: 15px;
-		border-bottom: 1px solid hsl(var(--b2));
+		border-bottom: 1px solid hsl(var(--b1));
 	}
 
 	.bottom-bar {

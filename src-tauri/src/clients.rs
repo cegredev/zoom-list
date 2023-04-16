@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Client {
-    id: u32,
+    id: i32,
     name: String,
 }
 
@@ -30,4 +30,9 @@ pub fn insert_client(conn: Connection, name: String) -> i64 {
         .expect("Couldn't insert client");
 
     conn.last_insert_rowid()
+}
+
+pub fn delete_client(conn: Connection, id: i32) {
+    conn.execute("DELETE FROM clients WHERE id=?1", [id])
+        .expect("Coudn't delete!");
 }

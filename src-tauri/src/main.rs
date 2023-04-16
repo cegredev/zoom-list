@@ -31,7 +31,11 @@ fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_clients, insert_client])
+        .invoke_handler(tauri::generate_handler![
+            get_clients,
+            insert_client,
+            delete_client
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -48,4 +52,11 @@ fn insert_client(app_handle: tauri::AppHandle, name: String) -> i64 {
     let conn = open_db_connection(app_handle).expect("couldnt connect to db");
 
     clients::insert_client(conn, name)
+}
+
+#[tauri::command]
+fn delete_client(app_handle: tauri::AppHandle, id: i32) {
+    let conn = open_db_connection(app_handle).expect("couldnt connect to db");
+
+    clients::delete_client(conn, id)
 }
