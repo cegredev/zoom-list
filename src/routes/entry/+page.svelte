@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { DateTime } from 'luxon';
 	import { fullMonths } from '$lib/uiconsts';
-	import { invoke } from '@tauri-apps/api/tauri';
 
 	const DATE_DISPLAY_FORMAT = 'dd.MM.yyyy';
 
@@ -39,12 +38,7 @@
 
 		<div class="divider divider-horizontal" />
 
-		<button
-			class="btn btn-primary"
-			on:click={async () => {
-				await invoke('init_db');
-			}}>Hinzufügen</button
-		>
+		<button class="btn btn-primary" on:click={async () => {}}>Hinzufügen</button>
 	</div>
 </div>
 

@@ -1,18 +1,12 @@
+import { invoke } from '@tauri-apps/api';
 import type { Client, ID } from './types';
 
-const clients: Client[] = [
-	{
-		id: 1,
-		name: 'Jamila Bender'
-	},
-	{
-		id: 2,
-		name: 'Bozanu Zinala'
-	}
-];
+export async function insertClient(name: string): Promise<ID> {
+	return await invoke('insert_client', { name });
+}
 
 export async function getClients(): Promise<Client[]> {
-	return clients;
+	return await invoke('get_clients');
 }
 
 export async function getClientMap(): Promise<Map<string, ID>> {

@@ -4,9 +4,10 @@
 )]
 
 use rusqlite::{Connection, Result};
+use serde::{Deserialize, Serialize};
 use std::{fs, path::PathBuf};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Client {
     id: u32,
     name: String,
@@ -35,21 +36,55 @@ fn main() {
 
             Ok(())
         })
-        // .invoke_handler(tauri::generate_handler![init_db])
+        .invoke_handler(tauri::generate_handler![get_clients])
+        .invoke_handler(tauri::generate_handler![insert_client])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
-// #[tauri::command]
-// fn init_db(app_handle: tauri::AppHandle) {
-//     let mut path = app_handle.path_resolver().app_data_dir().unwrap();
-//     path.push(DATABASE_FOLDER_NAME);
-//     path.push("db.db3");
+fn open_db_connection(app_handle: tauri::AppHandle) -> Option<Connection> {
+    let mut path = app_handle.path_resolver().app_data_dir()?;
 
-//     println!("path: {:?}", path);
+    path.push(DATABASE_FOLDER_NAME);
+    path.push(DATABASE_FILE_NAME);
 
-//     init_db_logic(path).expect("Init failed");
-// }
+    Connection::open(path).ok()
+}
+
+#[tauri::command]
+fn get_clients(app_handle: tauri::AppHandle) -> Vec<Client> {
+    let conn = open_db_connection(app_handle).expect("couldnt connect to db");
+
+    get_clients_logic(conn).expect("couldnt get clients")
+}
+
+fn get_clients_logic(conn: Connection) -> Result<Vec<Client>> {
+    let mut statement = conn.prepare("SELECT id, name FROM clients")?;
+
+    let client_iter = statement.query_map([], |row| {
+        Ok(Client {
+            id: row.get(0)?,
+            name: row.get(1)?,
+        })
+    })?;
+
+    let mapped_clients = client_iter.filter_map(|client| match client {
+        Ok(client) => Some(client),
+        Err(_) => None,
+    });
+
+    Ok(mapped_clients.collect())
+}
+
+#[tauri::command]
+fn insert_client(app_handle: tauri::AppHandle, name: String) -> i64 {
+    let conn = open_db_connection(app_handle).expect("couldnt connect to db");
+
+    conn.execute("INSERT INTO clients (name) VALUES (?1)", [name])
+        .expect("Couldn't insert client");
+
+    conn.last_insert_rowid()
+}
 
 fn init_db(path: PathBuf) -> Result<()> {
     println!("Creating database:");
@@ -59,7 +94,7 @@ fn init_db(path: PathBuf) -> Result<()> {
     println!("Creating clients table...");
     conn.execute(
         "CREATE TABLE clients (
-            id    INTEGER UNSIGNED PRIMARY KEY,
+            id    INTEGER PRIMARY KEY,
             name  TEXT NOT NULL
             )",
         (), // empty list of pa rameters.
