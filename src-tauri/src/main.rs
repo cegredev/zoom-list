@@ -37,7 +37,8 @@ fn main() {
             insert_client,
             delete_client,
             parse_csv,
-            submit_records
+            submit_records,
+            get_record_counts_month
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -76,4 +77,11 @@ fn submit_records(app_handle: tauri::AppHandle, records: Vec<ClientRecords>) {
     let conn = open_db_connection(app_handle).expect("couldnt connect to db");
 
     records::submit_records(conn, records).expect("could not submit")
+}
+
+#[tauri::command]
+fn get_record_counts_month(app_handle: tauri::AppHandle, year: i32, month: u32) -> Vec<u32> {
+    let conn = open_db_connection(app_handle).expect("couldnt connect to db");
+
+    records::get_record_counts_month(conn, year, month)
 }

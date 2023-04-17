@@ -1,13 +1,12 @@
-use std::{collections::HashMap, fmt::Debug, fs, hash::Hash, io};
+use std::{collections::HashMap, fmt::Debug, fs};
 
-use chrono::{DateTime, NaiveDateTime, TimeZone, Utc};
+use chrono::NaiveDateTime;
 use rusqlite::{params, Connection, Result};
-use serde::{Deserialize, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 
 use crate::clients::{get_clients, insert_client, Client};
 
-const TIME_FORMAT: &'static str = "dd.MM.yyyy HH:mm:ss";
-
+const DATE_FORMAT: &'static str = "%d.%m.%Y %H:%M:%S";
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Record {
     start: String,
@@ -19,6 +18,55 @@ pub struct ClientRecords {
     id: Option<i32>,
     name: String,
     records: Vec<Record>,
+}
+
+pub fn get_record_counts_month(conn: Connection, mut year: i32, mut month: u32) -> Vec<u32> {
+    let mut statement = conn
+        .prepare("SELECT ((start_ms - ?1) / (1000 * 60 * 60 * 24)) AS day FROM records WHERE start_ms >= ?1 AND start_ms < ?2")
+        .expect("Couldnt prepare statement");
+
+    let start = NaiveDateTime::parse_from_str(
+        format!("01.{}.{} 00:00:00", month, year).as_str(),
+        DATE_FORMAT,
+    )
+    .expect("Could not parse date");
+
+    if month == 12 {
+        year += 1;
+        month = 1;
+    }
+
+    let end = NaiveDateTime::parse_from_str(
+        format!("01.{}.{} 00:00:00", month + 1, year).as_str(),
+        DATE_FORMAT,
+    )
+    .expect("Could not parse date");
+
+    let result = statement
+        .query_map(
+            params![start.timestamp_millis(), end.timestamp_millis()],
+            |row| {
+                let day: usize = row.get(0)?;
+                Ok(day)
+            },
+        )
+        .expect("Could not query");
+
+    let mut output: Vec<u32> = vec![
+        0;
+        end.signed_duration_since(start)
+            .num_days()
+            .try_into()
+            .unwrap()
+    ];
+
+    for x in result {
+        if let Ok(day) = x {
+            output[day] += 1;
+        }
+    }
+
+    output
 }
 
 fn get_client_map(conn: Connection) -> Result<HashMap<String, Client>> {
@@ -106,7 +154,7 @@ pub fn submit_records(conn: Connection, records: Vec<ClientRecords>) -> Option<(
         );
 
         for record in client_records.records {
-            let date = NaiveDateTime::parse_from_str(&record.start, "%d.%m.%Y %H:%M:%S")
+            let date = NaiveDateTime::parse_from_str(&record.start, DATE_FORMAT)
                 .expect("could not parse data");
 
             conn.execute(

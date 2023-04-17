@@ -6,15 +6,19 @@
 	import type { ClientRecords } from '$lib/types';
 	import { goto } from '$app/navigation';
 	import { clientRecords, clientRecords_rust } from '$lib/stores';
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 
 	const DATE_DISPLAY_FORMAT = 'dd.MM.yyyy';
 	const DATE_STORE_FORMAT = 'dd.MM.yyyy HH:mm:ss';
 
 	let date = DateTime.now();
 	$: monthStart = date.startOf('month');
-	$: totalDays = date.endOf('month').day;
 	$: year = date.year;
 	$: month = date.month;
+
+	console.log(data.recordCounts);
 
 	async function parseCSV(path: string): Promise<ClientRecords[]> {
 		const data: any[] = await invoke('parse_csv', { path });
@@ -34,15 +38,15 @@
 
 <div class="wrapper">
 	<div class="entries">
-		{#each { length: totalDays } as _, days}
+		{#each data.recordCounts as count, days}
 			<div class="row">
 				<div class="badge badge-lg text-primary-content">
 					{monthStart.plus({ days }).toFormat(DATE_DISPLAY_FORMAT)}
 				</div>
-				{#if Math.random() < 0.5}
+				{#if count === 0}
 					<div>Noch keine Daten vorhanden</div>
 				{:else}
-					<div>Einträge: {90 + Math.floor(Math.random() * 20)}</div>
+					<div>Einträge: {count}</div>
 					<button class="btn btn-sm btn-outline btn-error">Löschen</button>
 				{/if}
 			</div>
