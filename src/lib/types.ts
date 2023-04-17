@@ -26,3 +26,9 @@ export interface CSVData {
 	records: Record[];
 	floatingRecords: Map<string, FloatingRecord[]>;
 }
+
+export interface ClientRecords {
+	id?: ID;
+	name: string;
+	records: FloatingRecord[];
+}

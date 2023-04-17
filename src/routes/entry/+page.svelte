@@ -3,9 +3,9 @@
 	import { fullMonths } from '$lib/uiconsts';
 	import { open } from '@tauri-apps/api/dialog';
 	import { invoke } from '@tauri-apps/api';
-	import type { CSVData } from '$lib/types';
+	import type { ClientRecords } from '$lib/types';
 	import { goto } from '$app/navigation';
-	import { csvDataStore } from '$lib/stores';
+	import { clientRecords, clientRecords_rust } from '$lib/stores';
 
 	const DATE_DISPLAY_FORMAT = 'dd.MM.yyyy';
 	const DATE_STORE_FORMAT = 'dd.MM.yyyy HH:mm:ss';
@@ -16,29 +16,19 @@
 	$: year = date.year;
 	$: month = date.month;
 
-	async function parseCSV(path: string) {
-		const data: any = await invoke('parse_csv', { path });
-		// let data: any;
+	async function parseCSV(path: string): Promise<ClientRecords[]> {
+		const data: any[] = await invoke('parse_csv', { path });
 
-		const result: CSVData = {
-			records: data.records,
-			floatingRecords: new Map()
-		};
+		clientRecords_rust.set(data);
 
-		for (const [key, value] of Object.entries(data.floating_records)) {
-			console.log(key, value);
-			result.floatingRecords.set(
-				key,
-				(value as any[]).map((value) => ({
-					duration: Duration.fromDurationLike({ minutes: value.duration_minutes }),
-					start: DateTime.fromFormat(value.start, DATE_STORE_FORMAT)
-				}))
-			);
-		}
-
-		// console.log([...result.floatingRecords.entries()]);
-		csvDataStore.set(result);
-		goto('/entry/create');
+		return data.map((clientRecords) => ({
+			id: clientRecords.id,
+			name: clientRecords.name,
+			records: clientRecords.records.map((record: any) => ({
+				start: DateTime.fromFormat(record.start, DATE_STORE_FORMAT),
+				duration: Duration.fromDurationLike({ minutes: record.duration_minutes })
+			}))
+		}));
 	}
 </script>
 
@@ -82,7 +72,10 @@
 				});
 				if (!path) return;
 				// @ts-ignore
-				parseCSV(path);
+				const data = await parseCSV(path);
+
+				clientRecords.set(data);
+				goto('/entry/create');
 			}}>Hinzufügen</button
 		>
 	</div>

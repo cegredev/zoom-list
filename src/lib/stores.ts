@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
-import type { CSVData } from './types';
+import type { CSVData, ClientRecords } from './types';
 
-export const csvDataStore = writable<CSVData | null>(null);
+export const clientRecords = writable<ClientRecords[] | null>(null);
+export const clientRecords_rust = writable<any[] | null>(null);

@@ -1,63 +1,42 @@
 use std::{collections::HashMap, fmt::Debug, fs, hash::Hash, io};
 
-use chrono::{DateTime, Utc};
-use rusqlite::{Connection, Result};
+use chrono::{DateTime, NaiveDateTime, TimeZone, Utc};
+use rusqlite::{params, Connection, Result};
 use serde::{Deserialize, Serialize, Serializer};
 
-use crate::clients::get_clients;
+use crate::clients::{get_clients, insert_client, Client};
 
 const TIME_FORMAT: &'static str = "dd.MM.yyyy HH:mm:ss";
 
-// struct SDateTime(DateTime<Utc>);
-
-// impl Serialize for SDateTime {
-//     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-//         serializer.serialize_u64(self.0.timestamp_millis().try_into().unwrap())
-//     }
-// }
-
-// impl Debug for SDateTime {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         f.write_str(self.0.format("%d%m%Y %H:%M").to_string().as_str())
-//     }
-// }
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Record {
-    client_id: i32,
     start: String,
     duration_minutes: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct FloatingRecord {
-    start: String,
-    duration_minutes: u32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CSVData {
+pub struct ClientRecords {
+    id: Option<i32>,
+    name: String,
     records: Vec<Record>,
-    floating_records: HashMap<String, Vec<FloatingRecord>>,
 }
 
-fn get_client_map(conn: Connection) -> Result<HashMap<String, i32>> {
+fn get_client_map(conn: Connection) -> Result<HashMap<String, Client>> {
     let clients = get_clients(conn)?;
 
     let mut map = HashMap::new();
     for client in clients {
-        map.insert(client.name, client.id);
+        map.insert(client.name.clone(), client.clone());
     }
 
     Ok(map)
 }
 
-pub fn records_from_csv(conn: Connection, path: String) -> Option<CSVData> {
+pub fn read_client_records(conn: Connection, path: String) -> Option<Vec<ClientRecords>> {
+    let clients_map = get_client_map(conn).ok()?;
     let content = fs::read_to_string(path).ok()?;
 
-    let name_map = get_client_map(conn).ok()?;
-    let mut records: Vec<Record> = vec![];
-    let mut floating_records: HashMap<String, Vec<FloatingRecord>> = HashMap::new();
+    let mut records_map: HashMap<String, Vec<Record>> = HashMap::new();
 
     let mut first = true;
     for line in content.split("\n") {
@@ -77,36 +56,66 @@ pub fn records_from_csv(conn: Connection, path: String) -> Option<CSVData> {
         let start = values[2].to_owned();
         let duration = values[4];
 
-        let client_id = name_map.get(&name);
-        // let start_date = DateTime::parse_from_str(start, TIME_FORMAT);
         let duration_minutes: u32 = duration.parse().expect("Duration could not be parsed");
 
-        if let Some(client_id) = client_id {
-            records.push(Record {
-                client_id: client_id.clone(),
-                start,
-                duration_minutes,
+        let vec = records_map.get(&name);
+        let mut real_vec: Vec<Record>;
+        if let None = vec {
+            real_vec = vec![];
+        } else {
+            real_vec = vec.unwrap().to_vec();
+        }
+
+        real_vec.push(Record {
+            start,
+            duration_minutes,
+        });
+
+        records_map.insert(name, real_vec);
+    }
+
+    let mut result: Vec<ClientRecords> = vec![];
+
+    for (name, records) in records_map {
+        let client = clients_map.get(&name);
+
+        if let Some(client) = client {
+            result.push(ClientRecords {
+                id: Some(client.id),
+                name,
+                records,
             });
         } else {
-            let vec = floating_records.get(&name);
-            let mut real_vec: Vec<FloatingRecord>;
-            if let None = vec {
-                real_vec = vec![];
-            } else {
-                real_vec = vec.unwrap().to_vec();
-            }
-
-            real_vec.push(FloatingRecord {
-                start,
-                duration_minutes,
-            });
-
-            floating_records.insert(name, real_vec);
+            result.push(ClientRecords {
+                id: None,
+                name,
+                records,
+            })
         }
     }
 
-    Some(CSVData {
-        records,
-        floating_records,
-    })
+    Some(result)
+}
+
+pub fn submit_records(conn: Connection, records: Vec<ClientRecords>) -> Option<()> {
+    for client_records in records {
+        let client_id = client_records.id.unwrap_or(
+            insert_client(&conn, client_records.name)
+                .try_into()
+                .unwrap(),
+        );
+
+        for record in client_records.records {
+            let date = NaiveDateTime::parse_from_str(&record.start, "%d.%m.%Y %H:%M:%S")
+                .expect("could not parse data");
+
+            conn.execute(
+                "INSERT INTO records (client_id, start_ms, duration_m) VALUES (?1, ?2, ?3)",
+                params![client_id, date.timestamp_millis(), record.duration_minutes,],
+            )
+            .expect("Could not insert record");
+        }
+    }
+
+    Some(())
 }

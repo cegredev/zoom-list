@@ -1,7 +1,7 @@
 use rusqlite::{Connection, Result};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Client {
     pub id: i32,
     pub name: String,
@@ -25,7 +25,7 @@ pub fn get_clients(conn: Connection) -> Result<Vec<Client>> {
     Ok(mapped_clients.collect())
 }
 
-pub fn insert_client(conn: Connection, name: String) -> i64 {
+pub fn insert_client(conn: &Connection, name: String) -> i64 {
     conn.execute("INSERT INTO clients (name) VALUES (?1)", [name])
         .expect("Couldn't insert client");
 

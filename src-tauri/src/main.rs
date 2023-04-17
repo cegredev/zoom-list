@@ -9,7 +9,7 @@ mod records;
 
 use clients::Client;
 use db::{init_db, open_db_connection, DATABASE_FILE_NAME, DATABASE_FOLDER_NAME};
-use records::CSVData;
+use records::ClientRecords;
 use std::fs;
 
 fn main() {
@@ -36,7 +36,8 @@ fn main() {
             get_clients,
             insert_client,
             delete_client,
-            parse_csv
+            parse_csv,
+            submit_records
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -53,7 +54,7 @@ fn get_clients(app_handle: tauri::AppHandle) -> Vec<Client> {
 fn insert_client(app_handle: tauri::AppHandle, name: String) -> i64 {
     let conn = open_db_connection(app_handle).expect("couldnt connect to db");
 
-    clients::insert_client(conn, name)
+    clients::insert_client(&conn, name)
 }
 
 #[tauri::command]
@@ -64,8 +65,15 @@ fn delete_client(app_handle: tauri::AppHandle, id: i32) {
 }
 
 #[tauri::command]
-fn parse_csv(app_handle: tauri::AppHandle, path: String) -> CSVData {
+fn parse_csv(app_handle: tauri::AppHandle, path: String) -> Vec<ClientRecords> {
     let conn = open_db_connection(app_handle).expect("couldnt connect to db");
 
-    records::records_from_csv(conn, path).expect("could not parse")
+    records::read_client_records(conn, path).expect("could not parse")
+}
+
+#[tauri::command]
+fn submit_records(app_handle: tauri::AppHandle, records: Vec<ClientRecords>) {
+    let conn = open_db_connection(app_handle).expect("couldnt connect to db");
+
+    records::submit_records(conn, records).expect("could not submit")
 }
