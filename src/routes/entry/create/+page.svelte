@@ -20,7 +20,7 @@
 				{#if !id}
 					<div class="badge badge-success gap-2">Neu</div>
 				{/if}
-				<div class="text-lg text-primary-content">{name}</div>
+				<div class="badge badge-lg text-primary-content">{name}</div>
 				<div>
 					{#each records as record}
 						<div>
