@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fmt::Debug, fs};
 
-use chrono::NaiveDateTime;
+use chrono::{Days, NaiveDate, NaiveDateTime};
 use rusqlite::{params, Connection, Result};
 use serde::{Deserialize, Serialize};
 
@@ -67,6 +67,26 @@ pub fn get_record_counts_month(conn: Connection, mut year: i32, mut month: u32) 
     }
 
     output
+}
+
+pub fn delete_records_on(conn: Connection, year: i32, month: u32, date: u32) {
+    let start = NaiveDateTime::parse_from_str(
+        format!("{}.{month}.{year} 00:00:00", date + 1).as_str(),
+        DATE_FORMAT,
+    )
+    .expect("could not parse date");
+    let end = start.checked_add_days(Days::new(1)).unwrap();
+
+    println!("{:?} {:?}", start, end);
+
+    let start_ms = start.timestamp_millis();
+    let end_ms = end.timestamp_millis();
+
+    conn.execute(
+        "DELETE FROM records WHERE start_ms >= ?1 AND start_ms < ?2",
+        params![start_ms, end_ms],
+    )
+    .expect("could not execute");
 }
 
 fn get_client_map(conn: Connection) -> Result<HashMap<String, Client>> {

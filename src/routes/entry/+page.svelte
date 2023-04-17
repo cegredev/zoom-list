@@ -18,8 +18,6 @@
 	$: year = date.year;
 	$: month = date.month;
 
-	console.log(data.recordCounts);
-
 	async function parseCSV(path: string): Promise<ClientRecords[]> {
 		const data: any[] = await invoke('parse_csv', { path });
 
@@ -47,7 +45,15 @@
 					<div>Noch keine Daten vorhanden</div>
 				{:else}
 					<div>Einträge: {count}</div>
-					<button class="btn btn-sm btn-outline btn-error">Löschen</button>
+					<button
+						class="btn btn-sm btn-outline btn-error"
+						on:click={async () => {
+							await invoke('delete_records_on', { year, month, day: days });
+
+							data.recordCounts = [...data.recordCounts];
+							data.recordCounts[days] = 0;
+						}}>Löschen</button
+					>
 				{/if}
 			</div>
 		{/each}

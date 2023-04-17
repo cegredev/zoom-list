@@ -38,7 +38,8 @@ fn main() {
             delete_client,
             parse_csv,
             submit_records,
-            get_record_counts_month
+            get_record_counts_month,
+            delete_records_on
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -84,4 +85,11 @@ fn get_record_counts_month(app_handle: tauri::AppHandle, year: i32, month: u32) 
     let conn = open_db_connection(app_handle).expect("couldnt connect to db");
 
     records::get_record_counts_month(conn, year, month)
+}
+
+#[tauri::command]
+fn delete_records_on(app_handle: tauri::AppHandle, year: i32, month: u32, day: u32) {
+    let conn = open_db_connection(app_handle).expect("couldnt connect to db");
+
+    records::delete_records_on(conn, year, month, day)
 }
