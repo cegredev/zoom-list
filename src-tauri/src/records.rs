@@ -167,11 +167,11 @@ pub fn read_client_records(conn: Connection, path: String) -> Option<Vec<ClientR
 
 pub fn submit_records(conn: Connection, records: Vec<ClientRecords>) -> Option<()> {
     for client_records in records {
-        let client_id = client_records.id.unwrap_or(
+        let client_id = client_records.id.unwrap_or_else(|| {
             insert_client(&conn, client_records.name)
                 .try_into()
-                .unwrap(),
-        );
+                .unwrap()
+        });
 
         for record in client_records.records {
             let date = NaiveDateTime::parse_from_str(&record.start, DATE_FORMAT)
