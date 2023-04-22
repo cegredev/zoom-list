@@ -26,7 +26,6 @@
 					{client.name}
 				</div>
 				<button class="btn btn-sm btn-outline btn-secondary">Bericht erstellen</button>
-				<!-- <button class="btn btn-sm btn-outline btn-error">Löschen</button> -->
 				<div class="dropdown">
 					<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 					<!-- svelte-ignore a11y-label-has-associated-control -->
