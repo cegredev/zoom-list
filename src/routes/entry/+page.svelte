@@ -7,16 +7,26 @@
 	import { goto } from '$app/navigation';
 	import { clientRecords, clientRecords_rust } from '$lib/stores';
 	import type { PageData } from './$types';
+	import { page } from '$app/stores';
+	import { getInt } from '$lib/util';
 
 	export let data: PageData;
+	let { recordCounts } = data;
 
 	const DATE_DISPLAY_FORMAT = 'dd.MM.yyyy';
 	const DATE_STORE_FORMAT = 'dd.MM.yyyy HH:mm:ss';
+	const TODAY = DateTime.now();
 
-	let date = DateTime.now();
-	$: monthStart = date.startOf('month');
-	$: year = date.year;
-	$: month = date.month;
+	let year = getInt($page.url.searchParams.get('year'), TODAY.year);
+	let month = getInt($page.url.searchParams.get('month'), TODAY.month);
+
+	$: monthStart = DateTime.fromFormat(`${year}-${month.toString().padStart(2, '0')}`, 'yyyy-MM');
+
+	$: {
+		invoke('get_record_counts_month', { year, month }).then((counts: any) => {
+			recordCounts = counts;
+		});
+	}
 
 	const unfocus = () => {
 		// @ts-ignore
@@ -41,7 +51,7 @@
 
 <div class="wrapper">
 	<div class="entries">
-		{#each data.recordCounts as count, days}
+		{#each recordCounts as count, days}
 			<div class="row">
 				<div class="badge badge-lg text-primary-content">
 					{monthStart.plus({ days }).toFormat(DATE_DISPLAY_FORMAT)}
@@ -113,7 +123,7 @@
 				const data = await parseCSV(path);
 
 				clientRecords.set(data);
-				goto('/entry/create');
+				await goto(`/entry/create?year=${year}&month=${month}`);
 			}}>Hinzufügen</button
 		>
 	</div>
