@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { open } from '@tauri-apps/api/dialog';
+	import type { PageData } from './$types';
 
-	let path: string = 'hi';
-	let divideByYear: boolean = false;
-	let divideByMonth: boolean = false;
+	export let data: PageData;
+
+	let { path, divideByYear, divideByMonth } = data;
 
 	$: {
 		if (!divideByYear) {
@@ -12,14 +13,13 @@
 	}
 </script>
 
-<div class="wrapper">
-	<form method="post">
+<div class="outer">
+	<div class="inner">
 		<div>
 			<label for="reportPath">Berichtsordner</label>
 			<div class="input-group">
 				<input bind:value={path} class="w-[100%]" type="text" name="reportPath" />
 				<button
-					type="button"
 					class="btn"
 					on:click={async () => {
 						const newPath = await open({
@@ -55,20 +55,25 @@
 		</div>
 
 		<div class="w-full flex flex-col items-center mt-auto mb-10">
-			<button class="btn btn-success w-[50%]">Speichern</button>
+			<button
+				class="btn btn-success w-[50%]"
+				on:click={async () => {
+					// await invoke("")
+				}}>Speichern</button
+			>
 		</div>
-	</form>
+	</div>
 </div>
 
 <style>
-	.wrapper {
+	.outer {
 		height: 100vh;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 	}
 
-	form {
+	.inner {
 		width: 80%;
 		min-height: 100%;
 		row-gap: 4%;
@@ -76,7 +81,7 @@
 		flex-direction: column;
 	}
 
-	form > div {
+	.inner > div {
 		@apply form-control;
 	}
 

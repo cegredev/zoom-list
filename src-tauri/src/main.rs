@@ -4,10 +4,12 @@
 )]
 
 mod clients;
+mod config;
 mod db;
 mod records;
 
 use clients::Client;
+use config::Config;
 use db::{init_db, open_db_connection, DATABASE_FILE_NAME, DATABASE_FOLDER_NAME};
 use records::ClientRecords;
 use std::fs;
@@ -39,10 +41,23 @@ fn main() {
             parse_csv,
             submit_records,
             get_record_counts_month,
-            delete_records_on
+            delete_records_on,
+            read_config
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[tauri::command]
+fn read_config(app_handle: tauri::AppHandle) -> Config {
+    let mut path = app_handle
+        .path_resolver()
+        .app_config_dir()
+        .expect("could not get config dir");
+
+    path.push("config.json");
+
+    config::read_config(path).expect("Could not read config")
 }
 
 #[tauri::command]
