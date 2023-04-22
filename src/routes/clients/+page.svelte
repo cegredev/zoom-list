@@ -1,8 +1,16 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api';
 	import type { PageData } from './$types';
+	import { fullMonths } from '$lib/uiconsts';
+	import { DateTime } from 'luxon';
+	import { getInt } from '$lib/util';
+	import { page } from '$app/stores';
 
 	export let data: PageData;
+	const TODAY = DateTime.now();
+
+	let year = getInt($page.url.searchParams.get('year'), TODAY.year);
+	let month = getInt($page.url.searchParams.get('month'), TODAY.month);
 
 	const unfocus = () => {
 		// @ts-ignore
@@ -50,12 +58,18 @@
 			</div>
 		{/each}
 	</div>
+	<div class="bottom-bar row">
+		<input type="number" name="year" bind:value={year} class="input input-bordered w-32" />
+
+		<select name="month" class="select" bind:value={month}>
+			{#each fullMonths as month, i}
+				<option value={i + 1}>{month}</option>
+			{/each}
+		</select>
+	</div>
 </div>
 
 <style>
-	.dropdown-content {
-	}
-
 	.wrapper {
 		height: 100vh;
 		display: flex;
@@ -75,5 +89,13 @@
 
 		padding: 15px;
 		border-bottom: 1px solid hsl(var(--b1));
+	}
+
+	.bottom-bar {
+		@apply bg-base-100;
+
+		flex: 0;
+		padding: 5px;
+		padding-left: 15px;
 	}
 </style>
