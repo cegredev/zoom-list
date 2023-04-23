@@ -32,3 +32,9 @@ export interface ClientRecords {
 	name: string;
 	records: FloatingRecord[];
 }
+
+export interface AppConfig {
+	path: string;
+	divideByYear: boolean;
+	divideByMonth: boolean;
+}

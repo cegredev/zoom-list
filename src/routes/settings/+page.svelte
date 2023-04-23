@@ -1,14 +1,11 @@
 <script lang="ts">
 	import { open } from '@tauri-apps/api/dialog';
-	import type { PageData } from './$types';
-
-	export let data: PageData;
-
-	let { path, divideByYear, divideByMonth } = data;
+	import { invoke } from '@tauri-apps/api';
+	import { appConfig } from '$lib/stores';
 
 	$: {
-		if (!divideByYear) {
-			divideByMonth = false;
+		if (!$appConfig.divideByYear) {
+			$appConfig.divideByMonth = false;
 		}
 	}
 </script>
@@ -18,7 +15,7 @@
 		<div>
 			<label for="reportPath">Berichtsordner</label>
 			<div class="input-group">
-				<input bind:value={path} class="w-[100%]" type="text" name="reportPath" />
+				<input bind:value={$appConfig.path} class="w-[100%]" type="text" name="reportPath" />
 				<button
 					class="btn"
 					on:click={async () => {
@@ -29,7 +26,7 @@
 
 						if (!newPath) return;
 
-						path = newPath.toString();
+						$appConfig.path = newPath.toString();
 					}}>Öffnen</button
 				>
 			</div>
@@ -38,7 +35,11 @@
 		<div>
 			<label class="label cursor-pointer">
 				<span class="label-text">Unterordner für Jahr anlegen</span>
-				<input bind:checked={divideByYear} type="checkbox" class="checkbox checkbox-lg" />
+				<input
+					bind:checked={$appConfig.divideByYear}
+					type="checkbox"
+					class="checkbox checkbox-lg"
+				/>
 			</label>
 		</div>
 
@@ -46,8 +47,8 @@
 			<label class="label cursor-pointer">
 				<span class="label-text">Unterordner für Monat anlegen</span>
 				<input
-					bind:checked={divideByMonth}
-					disabled={!divideByYear}
+					bind:checked={$appConfig.divideByMonth}
+					disabled={!$appConfig.divideByYear}
 					type="checkbox"
 					class="checkbox checkbox-lg"
 				/>
@@ -58,7 +59,7 @@
 			<button
 				class="btn btn-success w-[50%]"
 				on:click={async () => {
-					// await invoke("")
+					await invoke('write_config', { config: $appConfig });
 				}}>Speichern</button
 			>
 		</div>

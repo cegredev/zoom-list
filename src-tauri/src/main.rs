@@ -29,22 +29,21 @@ fn main() {
             submit_records,
             get_record_counts_month,
             delete_records_on,
-            read_config
+            read_config,
+            write_config
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
 #[tauri::command]
+fn write_config(app_handle: tauri::AppHandle, config: Config) {
+    config::write_config(&app_handle.path_resolver(), config).expect("could not write config")
+}
+
+#[tauri::command]
 fn read_config(app_handle: tauri::AppHandle) -> Config {
-    let mut path = app_handle
-        .path_resolver()
-        .app_config_dir()
-        .expect("could not get config dir");
-
-    path.push("config.json");
-
-    config::read_config(path).expect("Could not read config")
+    config::read_config(&app_handle.path_resolver()).expect("Could not read config")
 }
 
 #[tauri::command]
