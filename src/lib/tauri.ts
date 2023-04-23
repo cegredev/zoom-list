@@ -1,30 +1,21 @@
-let invokeFunction: any = () => console.log('invoking nothing!');
-let openFunction: any = () => console.log('opening nothing!');
-let readTextFileFunction: any = () => console.log('reading nothing!');
+import { invoke as invokeTauri } from '@tauri-apps/api/tauri';
+
+let _open: any;
 
 async function fixTauriFunctions() {
-	const { invoke } = await import('@tauri-apps/api');
-	invokeFunction = invoke;
-
 	const { open } = await import('@tauri-apps/api/dialog');
-	openFunction = open;
-
-	const { readTextFile } = await import('@tauri-apps/api/fs');
-	readTextFileFunction = readTextFile;
+	_open = open;
 }
 
+// There is a bug with Vite that forces it to use SSR even if disabled
+// That in turn causes problems with Tauri APIs which rely on the window,
+// which is why we have to do all of the weirdness in this file.
 if (!import.meta.env.SSR) {
 	await fixTauriFunctions();
 }
 
-export async function invoke<T>(name: string, args?: any): Promise<T> {
-	return await invokeFunction(name, args);
-}
+export const invoke = invokeTauri;
 
-export async function open(options?: any): Promise<any> {
-	return await openFunction(options);
-}
-
-export async function readTextFile(path: string, options?: any) {
-	return await readTextFileFunction(path, options);
+export async function open(options?: any): Promise<string[] | string | null> {
+	return await _open(options);
 }
