@@ -1,10 +1,11 @@
 <script lang="ts">
-	import type { ComponentProps, ComponentType, SvelteComponentTyped } from 'svelte';
-
-	type Component = $$Generic<SvelteComponentTyped>;
+	import type { ComponentType } from 'svelte';
 
 	export let component: ComponentType;
-	export let itemProps: ComponentProps<Component>[];
+	/**
+	 * IMPORTANT: These props have to fit the props for the given component!
+	 */
+	export let itemProps: any[];
 </script>
 
 <div class="wrapper">
@@ -16,7 +17,7 @@
 		{/each}
 	</div>
 
-	<div class="bottom-bar row">
+	<div class="bottom-bar row bg-base-100">
 		<slot />
 	</div>
 </div>
@@ -44,8 +45,6 @@
 	}
 
 	.bottom-bar {
-		@apply bg-base-100;
-
 		flex: 0;
 		padding: 5px;
 		padding-left: 15px;
