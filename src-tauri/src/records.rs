@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fmt::Debug, fs};
 
-use chrono::{Days, NaiveDate, NaiveDateTime};
+use chrono::{Days, NaiveDateTime};
 use rusqlite::{params, Connection, Result};
 use serde::{Deserialize, Serialize};
 
@@ -8,12 +8,14 @@ use crate::clients::{get_clients, insert_client, Client};
 
 const DATE_FORMAT: &'static str = "%d.%m.%Y %H:%M:%S";
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Record {
     start: String,
     duration_minutes: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ClientRecords {
     id: Option<i32>,
     name: String,

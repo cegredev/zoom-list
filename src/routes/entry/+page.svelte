@@ -43,7 +43,7 @@
 			name: clientRecords.name,
 			records: clientRecords.records.map((record: any) => ({
 				start: DateTime.fromFormat(record.start, DATE_STORE_FORMAT),
-				duration: Duration.fromDurationLike({ minutes: record.duration_minutes })
+				duration: Duration.fromDurationLike({ minutes: record.durationMinutes })
 			}))
 		}));
 	}
