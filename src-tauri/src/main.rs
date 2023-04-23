@@ -10,14 +10,14 @@ mod records;
 
 use clients::Client;
 use config::Config;
-use db::{init_db, open_db_connection, DATABASE_FILE_NAME, DATABASE_FOLDER_NAME};
+use db::open_db_connection;
 use records::ClientRecords;
-use std::fs;
 
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
             db::init_db_files(&app.path_resolver())?;
+            config::init_config(&app.path_resolver())?;
 
             Ok(())
         })
