@@ -17,20 +17,7 @@ use std::fs;
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
-            let mut dir_path = app
-                .path_resolver()
-                .app_data_dir()
-                .ok_or("AppDataDir not found")?;
-            dir_path.push(DATABASE_FOLDER_NAME);
-
-            let mut db_path = dir_path.clone();
-            db_path.push(DATABASE_FILE_NAME);
-
-            if !db_path.exists() {
-                fs::create_dir_all(dir_path.clone())?;
-
-                init_db(db_path)?;
-            }
+            db::init_db_files(&app.path_resolver())?;
 
             Ok(())
         })

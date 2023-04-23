@@ -1,9 +1,29 @@
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
+use anyhow::Context;
 use rusqlite::{Connection, Result};
+use tauri::PathResolver;
 
 pub const DATABASE_FOLDER_NAME: &'static str = "databases";
 pub const DATABASE_FILE_NAME: &'static str = "db.db3";
+
+pub fn init_db_files(path_resolver: &PathResolver) -> anyhow::Result<()> {
+    let mut dir_path = path_resolver
+        .app_data_dir()
+        .context("AppDataDir not found")?;
+    dir_path.push(DATABASE_FOLDER_NAME);
+
+    let mut db_path = dir_path.clone();
+    db_path.push(DATABASE_FILE_NAME);
+
+    if !db_path.exists() {
+        fs::create_dir_all(dir_path.clone()).context("Could not create directory")?;
+
+        init_db(db_path)?;
+    }
+
+    Ok(())
+}
 
 pub fn open_db_connection(app_handle: tauri::AppHandle) -> Option<Connection> {
     let mut path = app_handle.path_resolver().app_data_dir()?;
