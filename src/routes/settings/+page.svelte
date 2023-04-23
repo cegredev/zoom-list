@@ -92,7 +92,4 @@
 	label:not(.input-group) {
 		@apply label;
 	}
-
-	button#save {
-	}
 </style>

@@ -1,8 +1,5 @@
 <script lang="ts">
-	import type { LayoutData } from './$types';
 	import '$lib/global.css';
-
-	export let data: LayoutData;
 </script>
 
 <div class="flex flex-row h-full">
