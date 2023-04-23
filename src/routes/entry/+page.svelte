@@ -4,77 +4,46 @@
 	import { invoke, open } from '$lib/tauri';
 	import { goto } from '$app/navigation';
 	import { clientRecords } from '$lib/stores';
-	import type { PageData } from './$types';
 	import { page } from '$app/stores';
 	import { getInt } from '$lib/util';
-	import { parseCSV } from '$lib/clients';
-
-	export let data: PageData;
-	let { recordCounts } = data;
+	import { parseCSV } from '$lib/csv';
+	import DeleteButton from '$lib/components/DeleteButton.svelte';
 
 	const DATE_DISPLAY_FORMAT = 'dd.MM.yyyy';
 	const TODAY = DateTime.now();
 
 	let year = getInt($page.url.searchParams.get('year'), TODAY.year);
 	let month = getInt($page.url.searchParams.get('month'), TODAY.month);
+	let recordCounts: number[] = [];
 
 	$: monthStart = DateTime.fromFormat(`${year}-${month.toString().padStart(2, '0')}`, 'yyyy-MM');
-
 	$: {
 		invoke('get_record_counts_month', { year, month }).then((counts: any) => {
 			recordCounts = counts;
 		});
 	}
-
-	const unfocus = () => {
-		// @ts-ignore
-		document.activeElement.blur();
-	};
 </script>
 
 <div class="wrapper">
 	<div class="entries">
-		{#each recordCounts as count, days}
+		{#each recordCounts as count, day}
 			<div class="row">
 				<div class="badge badge-lg text-primary-content">
-					{monthStart.plus({ days }).toFormat(DATE_DISPLAY_FORMAT)}
+					{monthStart.plus({ days: day }).toFormat(DATE_DISPLAY_FORMAT)}
 				</div>
 				{#if count === 0}
 					<div>Noch keine Daten vorhanden</div>
 				{:else}
 					<div>Einträge: {count}</div>
 
-					<div class="dropdown">
-						<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-						<!-- svelte-ignore a11y-label-has-associated-control -->
-						<label tabindex="0" class="btn btn-sm btn-outline btn-error">Löschen</label>
+					<DeleteButton
+						onDelete={async () => {
+							await invoke('delete_records_on', { year, month, day });
 
-						<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-						<div
-							id="dropdown"
-							tabindex="0"
-							class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
-						>
-							<div class="label">
-								<span class="label-text">Wirklich löschen?</span>
-							</div>
-							<div class="flex flex-row justify-center">
-								<button
-									class="btn btn-sm btn-success"
-									on:click={async () => {
-										await invoke('delete_records_on', { year, month, day: days });
-
-										data.recordCounts = [...data.recordCounts];
-										data.recordCounts[days] = 0;
-
-										unfocus();
-									}}>Ja</button
-								>
-								<div class="divider divider-horizontal" />
-								<button class="btn btn-sm btn-error" on:click={unfocus}>Nein</button>
-							</div>
-						</div>
-					</div>
+							recordCounts = [...recordCounts];
+							recordCounts[day] = 0;
+						}}
+					/>
 				{/if}
 			</div>
 		{/each}
@@ -101,11 +70,14 @@
 						}
 					]
 				});
+
 				if (!path) return;
+
 				// @ts-ignore
 				const data = await parseCSV(path);
 
 				clientRecords.set(data);
+
 				await goto(`/entry/create?year=${year}&month=${month}`);
 			}}>Hinzufügen</button
 		>
