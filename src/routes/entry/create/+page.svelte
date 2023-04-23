@@ -9,8 +9,6 @@
 	let year = $page.url.searchParams.get('year');
 	let month = $page.url.searchParams.get('month');
 
-	console.log(year, month);
-
 	async function submitData() {
 		await invoke('submit_records', { records: $clientRecords_rust });
 

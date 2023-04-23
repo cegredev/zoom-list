@@ -1,19 +1,18 @@
 <script lang="ts">
-	import { DateTime, Duration } from 'luxon';
+	import { DateTime } from 'luxon';
 	import { fullMonths } from '$lib/uiconsts';
 	import { invoke, open } from '$lib/tauri';
-	import type { ClientRecords } from '$lib/types';
 	import { goto } from '$app/navigation';
-	import { clientRecords, clientRecords_rust } from '$lib/stores';
+	import { clientRecords } from '$lib/stores';
 	import type { PageData } from './$types';
 	import { page } from '$app/stores';
 	import { getInt } from '$lib/util';
+	import { parseCSV } from '$lib/clients';
 
 	export let data: PageData;
 	let { recordCounts } = data;
 
 	const DATE_DISPLAY_FORMAT = 'dd.MM.yyyy';
-	const DATE_STORE_FORMAT = 'dd.MM.yyyy HH:mm:ss';
 	const TODAY = DateTime.now();
 
 	let year = getInt($page.url.searchParams.get('year'), TODAY.year);
@@ -31,21 +30,6 @@
 		// @ts-ignore
 		document.activeElement.blur();
 	};
-
-	async function parseCSV(path: string): Promise<ClientRecords[]> {
-		const data: any[] = await invoke('parse_csv', { path });
-
-		clientRecords_rust.set(data);
-
-		return data.map((clientRecords) => ({
-			id: clientRecords.id,
-			name: clientRecords.name,
-			records: clientRecords.records.map((record: any) => ({
-				start: DateTime.fromFormat(record.start, DATE_STORE_FORMAT),
-				duration: Duration.fromDurationLike({ minutes: record.durationMinutes })
-			}))
-		}));
-	}
 </script>
 
 <div class="wrapper">
