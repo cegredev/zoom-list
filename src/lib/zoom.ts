@@ -1,4 +1,4 @@
-import { readTextFile } from '@tauri-apps/api/fs';
+import { readTextFile } from '$lib/tauri';
 import type { ID, ZoomEntry } from './types';
 import { DateTime, Duration } from 'luxon';
 import { getClientMap } from './clients';

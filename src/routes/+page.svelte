@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { open } from '@tauri-apps/api/dialog';
+	import { open } from '$lib/tauri';
 	import { readCSVFile } from '$lib/zoom';
 
 	let content = 'test';

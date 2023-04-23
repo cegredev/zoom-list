@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { open } from '@tauri-apps/api/dialog';
-	import { invoke } from '@tauri-apps/api';
+	import { invoke, open } from '$lib/tauri';
 	import { appConfig } from '$lib/stores';
 
 	$: {

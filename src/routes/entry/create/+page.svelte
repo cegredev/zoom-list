@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 	import { clientRecords, clientRecords_rust } from '$lib/stores';
 	import { ONLY_TIME_FORMAT_DETAILED } from '$lib/uiconsts';
-	import { invoke } from '@tauri-apps/api';
+	import { invoke } from '$lib/tauri';
 
 	let allRecords = $clientRecords ?? [];
 	let year = $page.url.searchParams.get('year');

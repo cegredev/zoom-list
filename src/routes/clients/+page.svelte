@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { invoke } from '@tauri-apps/api';
+	import { invoke } from '$lib/tauri';
 	import type { PageData } from './$types';
 	import { fullMonths } from '$lib/uiconsts';
 	import { DateTime } from 'luxon';

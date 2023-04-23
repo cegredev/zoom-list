@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { DateTime, Duration } from 'luxon';
 	import { fullMonths } from '$lib/uiconsts';
-	import { open } from '@tauri-apps/api/dialog';
-	import { invoke } from '@tauri-apps/api';
+	import { invoke, open } from '$lib/tauri';
 	import type { ClientRecords } from '$lib/types';
 	import { goto } from '$app/navigation';
 	import { clientRecords, clientRecords_rust } from '$lib/stores';
