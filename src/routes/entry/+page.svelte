@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { DateTime } from 'luxon';
-	import { fullMonths } from '$lib/uiconsts';
 	import { invoke, open } from '$lib/tauri';
 	import { goto } from '$app/navigation';
 	import { clientRecords } from '$lib/stores';
 	import { page } from '$app/stores';
 	import { getInt } from '$lib/util';
 	import { parseCSV } from '$lib/csv';
-	import DeleteButton from '$lib/components/DeleteButton.svelte';
+	import ItemList from '$lib/components/ItemList.svelte';
+	import EntryRow from './EntryRow.svelte';
+	import TimeSelect from '$lib/components/TimeSelect.svelte';
 
-	const DATE_DISPLAY_FORMAT = 'dd.MM.yyyy';
 	const TODAY = DateTime.now();
 
 	let year = getInt($page.url.searchParams.get('year'), TODAY.year);
@@ -24,93 +24,43 @@
 	}
 </script>
 
-<div class="wrapper">
-	<div class="entries">
-		{#each recordCounts as count, day}
-			<div class="row">
-				<div class="badge badge-lg text-primary-content">
-					{monthStart.plus({ days: day }).toFormat(DATE_DISPLAY_FORMAT)}
-				</div>
-				{#if count === 0}
-					<div>Noch keine Daten vorhanden</div>
-				{:else}
-					<div>Einträge: {count}</div>
+<ItemList
+	component={EntryRow}
+	itemProps={recordCounts.map((count, day) => ({
+		count,
+		date: monthStart.plus({ days: day }),
+		onDelete: async () => {
+			await invoke('delete_records_on', { year, month, day });
 
-					<DeleteButton
-						onDelete={async () => {
-							await invoke('delete_records_on', { year, month, day });
+			recordCounts = [...recordCounts];
+			recordCounts[day] = 0;
+		}
+	}))}
+>
+	<TimeSelect bind:year bind:month />
 
-							recordCounts = [...recordCounts];
-							recordCounts[day] = 0;
-						}}
-					/>
-				{/if}
-			</div>
-		{/each}
-	</div>
-	<div class="bottom-bar row">
-		<input type="number" name="year" bind:value={year} class="input input-bordered w-32" />
+	<div class="divider divider-horizontal" />
 
-		<select name="month" class="select" bind:value={month}>
-			{#each fullMonths as month, i}
-				<option value={i + 1}>{month}</option>
-			{/each}
-		</select>
+	<button
+		class="btn btn-primary"
+		on:click={async () => {
+			const path = await open({
+				filters: [
+					{
+						name: 'CSV',
+						extensions: ['csv']
+					}
+				]
+			});
 
-		<div class="divider divider-horizontal" />
+			if (!path) return;
 
-		<button
-			class="btn btn-primary"
-			on:click={async () => {
-				const path = await open({
-					filters: [
-						{
-							name: 'CSV',
-							extensions: ['csv']
-						}
-					]
-				});
+			// @ts-ignore
+			const data = await parseCSV(path);
 
-				if (!path) return;
+			clientRecords.set(data);
 
-				// @ts-ignore
-				const data = await parseCSV(path);
-
-				clientRecords.set(data);
-
-				await goto(`/entry/create?year=${year}&month=${month}`);
-			}}>Hinzufügen</button
-		>
-	</div>
-</div>
-
-<style>
-	.wrapper {
-		height: 100vh;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.entries {
-		flex: auto;
-		overflow-y: auto;
-	}
-
-	.row {
-		display: flex;
-		flex-direction: row;
-		gap: 10px;
-		align-items: center;
-
-		padding: 15px;
-		border-bottom: 1px solid hsl(var(--b1));
-	}
-
-	.bottom-bar {
-		@apply bg-base-100;
-
-		flex: 0;
-		padding: 5px;
-		padding-left: 15px;
-	}
-</style>
+			await goto(`/entry/create?year=${year}&month=${month}`);
+		}}>Hinzufügen</button
+	>
+</ItemList>
