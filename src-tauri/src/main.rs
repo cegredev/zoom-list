@@ -7,6 +7,7 @@ mod clients;
 mod config;
 mod db;
 mod records;
+mod reports;
 
 use clients::Client;
 use config::Config;
@@ -22,6 +23,7 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            generate_report,
             get_clients,
             insert_client,
             delete_client,
@@ -34,6 +36,15 @@ fn main() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[tauri::command]
+fn generate_report(app_handle: tauri::AppHandle, client_id: i32, year: u32, month: u32) {
+    let conn = open_db_connection(app_handle).expect("couldnt connect to db");
+
+    println!("command");
+
+    reports::generate_report(conn, client_id, year, month)
 }
 
 #[tauri::command]
@@ -50,7 +61,7 @@ fn read_config(app_handle: tauri::AppHandle) -> Config {
 fn get_clients(app_handle: tauri::AppHandle) -> Vec<Client> {
     let conn = open_db_connection(app_handle).expect("couldnt connect to db");
 
-    clients::get_clients(conn).expect("couldnt get clients")
+    clients::get_clients(&conn).expect("couldnt get clients")
 }
 
 #[tauri::command]
@@ -71,7 +82,7 @@ fn delete_client(app_handle: tauri::AppHandle, id: i32) {
 fn parse_csv(app_handle: tauri::AppHandle, path: String) -> Vec<ClientRecords> {
     let conn = open_db_connection(app_handle).expect("couldnt connect to db");
 
-    records::read_client_records(conn, path).expect("could not parse")
+    records::read_client_records(&conn, path).expect("could not parse")
 }
 
 #[tauri::command]

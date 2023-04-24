@@ -8,7 +8,17 @@ pub struct Client {
     pub name: String,
 }
 
-pub fn get_clients(conn: Connection) -> Result<Vec<Client>> {
+pub fn get_client(conn: &Connection, client_id: i32) -> Result<Client> {
+    let arr: Vec<Client> = get_clients(conn)?
+        .iter()
+        .filter(|client| client.id == client_id)
+        .map(|client| client.clone())
+        .collect();
+
+    Ok(arr[0].clone())
+}
+
+pub fn get_clients(conn: &Connection) -> Result<Vec<Client>> {
     let mut statement = conn.prepare("SELECT id, name FROM clients")?;
 
     let client_iter = statement.query_map([], |row| {

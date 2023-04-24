@@ -91,7 +91,7 @@ pub fn delete_records_on(conn: Connection, year: i32, month: u32, date: u32) {
     .expect("could not execute");
 }
 
-fn get_client_map(conn: Connection) -> Result<HashMap<String, Client>> {
+fn get_client_map(conn: &Connection) -> Result<HashMap<String, Client>> {
     let clients = get_clients(conn)?;
 
     let mut map = HashMap::new();
@@ -102,7 +102,7 @@ fn get_client_map(conn: Connection) -> Result<HashMap<String, Client>> {
     Ok(map)
 }
 
-pub fn read_client_records(conn: Connection, path: String) -> Option<Vec<ClientRecords>> {
+pub fn read_client_records(conn: &Connection, path: String) -> Option<Vec<ClientRecords>> {
     let clients_map = get_client_map(conn).ok()?;
     let content = fs::read_to_string(path).ok()?;
 
