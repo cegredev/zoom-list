@@ -1,8 +1,12 @@
-import { invoke as invokeTauri } from '@tauri-apps/api/tauri';
+// import { invoke as invokeTauri } from '@tauri-apps/api/tauri';
 
+let _invoke: any;
 let _open: any;
 
 async function fixTauriFunctions() {
+	const { invoke } = await import('@tauri-apps/api');
+	_invoke = invoke;
+
 	const { open } = await import('@tauri-apps/api/dialog');
 	_open = open;
 }
@@ -14,7 +18,9 @@ if (!import.meta.env.SSR) {
 	await fixTauriFunctions();
 }
 
-export const invoke = invokeTauri;
+export async function invoke(cmd: string, options?: any): Promise<any> {
+	return await _invoke(cmd, options);
+}
 
 export async function open(options?: any): Promise<string[] | string | null> {
 	return await _open(options);
