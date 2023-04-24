@@ -18,6 +18,8 @@
 <ItemList
 	component={ClientRow}
 	itemProps={data.clients.map((client) => ({
+		year,
+		month,
 		client,
 		onDelete: async () => {
 			await invoke('delete_client', { id: client.id });

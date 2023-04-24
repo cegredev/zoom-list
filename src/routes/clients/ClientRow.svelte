@@ -3,6 +3,7 @@
 	import { invoke } from '$lib/tauri';
 	import type { Client } from '$lib/types';
 
+	export let year: number, month: number;
 	export let client: Client;
 	export let onDelete: () => Promise<void>;
 </script>
@@ -14,9 +15,9 @@
 <button
 	class="btn btn-sm btn-outline btn-secondary"
 	on:click={async () => {
-		const result = await invoke('generate_report', { clientId: client.id, year: 2023, month: 4 });
+		const file = await invoke('generate_report', { clientId: client.id, year, month });
 
-		console.log('result:', result);
+		console.log('File:', file);
 	}}>Bericht erstellen</button
 >
 

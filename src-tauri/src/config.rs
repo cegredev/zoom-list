@@ -7,9 +7,9 @@ use tauri::PathResolver;
 #[derive(Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
-    path: String,
-    divide_by_year: bool,
-    divide_by_month: bool,
+    pub path: String,
+    pub divide_by_year: bool,
+    pub divide_by_month: bool,
 }
 
 fn resolve_config_path(path_resolver: &PathResolver) -> anyhow::Result<PathBuf> {

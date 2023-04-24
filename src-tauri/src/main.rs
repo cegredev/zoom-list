@@ -9,6 +9,7 @@ mod db;
 mod records;
 mod reports;
 
+use anyhow::Context;
 use clients::Client;
 use config::Config;
 use db::open_db_connection;
@@ -39,12 +40,15 @@ fn main() {
 }
 
 #[tauri::command]
-fn generate_report(app_handle: tauri::AppHandle, client_id: i32, year: u32, month: u32) {
+fn generate_report(app_handle: tauri::AppHandle, client_id: i32, year: u32, month: u32) -> String {
+    let config = config::read_config(&app_handle.path_resolver())
+        .context("Could not read config")
+        .unwrap();
     let conn = open_db_connection(app_handle).expect("couldnt connect to db");
 
     println!("command");
 
-    reports::generate_report(conn, client_id, year, month)
+    reports::generate_report(&conn, &config, client_id, year, month).expect("fuuuuuuCCCCCK")
 }
 
 #[tauri::command]
