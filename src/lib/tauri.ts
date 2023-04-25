@@ -1,14 +1,14 @@
-// import { invoke as invokeTauri } from '@tauri-apps/api/tauri';
-
 let _invoke: any;
 let _open: any;
+let _message: any;
 
 async function fixTauriFunctions() {
 	const { invoke } = await import('@tauri-apps/api');
 	_invoke = invoke;
 
-	const { open } = await import('@tauri-apps/api/dialog');
+	const { open, message } = await import('@tauri-apps/api/dialog');
 	_open = open;
+	_message = message;
 }
 
 // There is a bug with Vite that forces it to use SSR even if disabled
@@ -24,4 +24,8 @@ export async function invoke(cmd: string, options?: any): Promise<any> {
 
 export async function open(options?: any): Promise<string[] | string | null> {
 	return await _open(options);
+}
+
+export async function message(message: string, options?: any): Promise<void> {
+	return await _message(message, options);
 }
