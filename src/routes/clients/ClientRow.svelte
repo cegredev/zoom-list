@@ -8,8 +8,6 @@
 	export let year: number, month: number;
 	export let client: Client;
 	export let onDelete: () => Promise<void>;
-
-	let outputMessage = '';
 </script>
 
 <div class="badge badge-lg text-primary-content">
@@ -28,11 +26,7 @@
 		}
 
 		const file = await invoke('generate_report', { clientId: client.id, year, month });
-
-		console.log('File:', file);
 	}}>Bericht erstellen</button
 >
 
 <DeleteButton {onDelete} />
-
-{outputMessage}
