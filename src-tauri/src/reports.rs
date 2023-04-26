@@ -162,8 +162,6 @@ fn generate_report_html(path_resolver: &PathResolver, report: Report) -> Result<
 
     fs::write(out_html_file.clone(), content)?;
 
-    println!("html: {:?}", out_html_file);
-
     Ok(out_html_file
         .to_str()
         .context("Could not turn path into string")?
@@ -203,8 +201,6 @@ pub fn generate_report(
 ) -> Result<String> {
     let report = get_report_data(conn, client_id, year, month).unwrap();
 
-    println!("got report {:?}", report);
-
     let mut path: PathBuf = config.path.as_str().to_owned().into();
     if config.divide_by_year {
         path.push(format!("{year}"));
@@ -217,8 +213,6 @@ pub fn generate_report(
     fs::create_dir_all(path.clone())?;
 
     path.push(format!("{}.pdf", report.client.name));
-
-    println!("path: {:?}", path);
 
     write_report_to_file(&path, path_resolver, report)?;
 

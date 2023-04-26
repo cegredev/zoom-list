@@ -63,6 +63,7 @@ pub fn init_db(path: PathBuf) -> Result<()> {
         (),
     )?;
     println!("Success!");
+    println!("Created database!");
 
     Ok(())
 }
