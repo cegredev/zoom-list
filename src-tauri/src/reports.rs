@@ -70,7 +70,7 @@ struct Report {
 #[serde(rename_all = "camelCase")]
 struct ReportPretty {
     client_name: String,
-    month_pretty: String,
+    month: String,
     records: Vec<ReportDataPretty>,
 }
 
@@ -78,7 +78,7 @@ impl Report {
     fn pretty(self: &Self) -> ReportPretty {
         ReportPretty {
             client_name: self.client.name.clone(),
-            month_pretty: MONTHS_FULL[self.month_index].to_string(),
+            month: MONTHS_FULL[self.month_index].to_string(),
             records: self.records.iter().map(|record| record.pretty()).collect(),
         }
     }
