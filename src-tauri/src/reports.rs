@@ -184,6 +184,7 @@ fn write_report_to_file(
 
     let mut options = PrintToPdfOptions::default();
     options.landscape = Some(false);
+    options.print_background = Some(true);
 
     let bytes = tab.print_to_pdf(Some(options))?;
 
