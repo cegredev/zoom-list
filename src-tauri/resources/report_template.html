@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Bericht</title>
+	</head>
+	<body>
+		<div>
+			<h1>ndb Neue Deutsche Bildung GmbH - Colditzstraße 30 - 12099 Berlin</h1>
+			<h2>Vertreten durch H. Naman</h2>
+		</div>
+
+		<div>
+			<p>Elektronischer Auszug der Anwesenheitszeiten</p>
+			<table>
+				<tbody>
+					<tr>
+						<td>Teilnehmer/in:</td>
+						<td>{{clientName}}</td>
+					</tr>
+					<tr>
+						<td>Auszug für den Monat</td>
+						<td>{{monthPretty}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<table>
+			<thead>
+				<tr>
+					<th>Anmeldung</th>
+					<th>Abmeldung</th>
+					<th>Anwesenheitsdauer in Minuten</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#each records}}
+				<tr>
+					<td>{{start}}</td>
+					<td>{{end}}</td>
+					<td>{{durationMinutes}}</td>
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+	</body>
+</html>

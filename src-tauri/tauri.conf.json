@@ -16,7 +16,7 @@
 				"exists": true,
 				"readFile": true,
 				"writeFile": true,
-				"scope": ["$APPDATA/databases/*"]
+				"scope": ["$APPDATA/databases/*", "$RESOURCE/resources/*"]
 			},
 			"dialog": {
 				"open": true,
@@ -42,13 +42,12 @@
 			"publisher": "Cedric Greiten",
 			"longDescription": "",
 			"macOS": {
-				"entitlements": "./entitlements.plist",
 				"exceptionDomain": "",
 				"frameworks": [],
 				"providerShortName": null,
 				"signingIdentity": null
 			},
-			"resources": [],
+			"resources": ["resources/*"],
 			"shortDescription": "",
 			"targets": "all",
 			"windows": {

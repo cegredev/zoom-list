@@ -25,7 +25,7 @@ pub fn init_db_files(path_resolver: &PathResolver) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn open_db_connection(app_handle: tauri::AppHandle) -> Option<Connection> {
+pub fn open_db_connection(app_handle: &tauri::AppHandle) -> Option<Connection> {
     let mut path = app_handle.path_resolver().app_data_dir()?;
 
     path.push(DATABASE_FOLDER_NAME);
